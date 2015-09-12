@@ -4,6 +4,7 @@ import edu.princeton.cs.algs4.StdStats;
 
 /**
  * Class with main method to perform multiple percolation computation experiments.
+ *
  * @author ISchwarz
  */
 public class PercolationStats {
@@ -45,7 +46,7 @@ public class PercolationStats {
 
         mean = StdStats.mean(percolationThresholds);
         stddev = StdStats.stddev(percolationThresholds);
-        double confidenceFraction = (1.96*stddev())/Math.sqrt(T);
+        double confidenceFraction = (1.96 * stddev()) / Math.sqrt(T);
         confidenceLo = mean - confidenceFraction;
         confidenceHi = mean + confidenceFraction;
     }
@@ -68,8 +69,8 @@ public class PercolationStats {
 
 
     public static void main(String[] args) {
-        int N = Integer.valueOf(args[0]);
-        int T = Integer.valueOf(args[1]);
+        int N = Integer.parseInt(args[0]);
+        int T = Integer.parseInt(args[1]);
 
         PercolationStats stats = new PercolationStats(N, T);
         System.out.println("mean                    = " + stats.mean());

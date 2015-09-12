@@ -34,14 +34,14 @@ public class Percolation {
     }
 
     private void connectTopRowWithVirtualTopSite() {
-        for(int i=1; i<=gridSize; i++) {
+        for (int i = 1; i <= gridSize; i++) {
             int fieldIndex = getFieldIndexInQuickUnionStructure(1, i);
             quickUnionStructure.union(virtualTopSite, fieldIndex);
         }
     }
 
     private void connectBottomRowWithVirtualBottomSite() {
-        for(int i=1; i<=gridSize; i++) {
+        for (int i = 1; i <= gridSize; i++) {
             int fieldIndex = getFieldIndexInQuickUnionStructure(gridSize, i);
             quickUnionStructure.union(virtualBottomSite, fieldIndex);
         }
@@ -63,7 +63,7 @@ public class Percolation {
     }
 
     public boolean isFull(int i, int j) {   // is site (row i, column j) connected to top?
-        if(isOpen(i, j)) {
+        if (isOpen(i, j)) {
             int fieldIndex = getFieldIndexInQuickUnionStructure(i, j);
             return quickUnionStructure.connected(virtualTopSite, fieldIndex);
         }
@@ -86,7 +86,7 @@ public class Percolation {
     }
 
     private int getFieldIndexInQuickUnionStructure(int i, int j) {
-        return (i-1) * gridSize + j;
+        return (i - 1) * gridSize + j;
     }
 
 }
