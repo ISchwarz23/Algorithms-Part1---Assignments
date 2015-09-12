@@ -74,6 +74,33 @@ public class PercolationTest {
         assertFalse(percolation.isFull(3, 2));
     }
 
+    @Test
+    public void shouldNotBeFilled() {
+        // when
+        percolation.open(1, 3);
+        percolation.open(2, 3);
+        percolation.open(3, 3);
+        percolation.open(4, 3);
+        percolation.open(5, 3);
+        percolation.open(5, 5);
+
+        // then
+        assertTrue(percolation.isFull(1, 3));
+        assertTrue(percolation.isFull(2, 3));
+        assertTrue(percolation.isFull(3, 3));
+        assertTrue(percolation.isFull(4, 3));
+        assertTrue(percolation.isFull(5, 3));
+        assertFalse(percolation.isFull(5, 5));
+    }
+
+    @Test
+    public void shouldNotPercolateInCornerCase() {
+        Percolation percolation = new Percolation(1);
+        assertFalse(percolation.percolates());
+        percolation.open(1, 1);
+        assertTrue(percolation.percolates());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIllegalArgumentExceptionIfGridSizeIsZero() {
         new Percolation(0);

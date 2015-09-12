@@ -28,32 +28,24 @@ public class Percolation {
 
         virtualTopSite = 0;
         virtualBottomSite = n * n + 1;
-
-        connectTopRowWithVirtualTopSite();
-        connectBottomRowWithVirtualBottomSite();
-    }
-
-    private void connectTopRowWithVirtualTopSite() {
-        for (int i = 1; i <= gridSize; i++) {
-            int fieldIndex = getFieldIndexInQuickUnionStructure(1, i);
-            quickUnionStructure.union(virtualTopSite, fieldIndex);
-        }
-    }
-
-    private void connectBottomRowWithVirtualBottomSite() {
-        for (int i = 1; i <= gridSize; i++) {
-            int fieldIndex = getFieldIndexInQuickUnionStructure(gridSize, i);
-            quickUnionStructure.union(virtualBottomSite, fieldIndex);
-        }
     }
 
     public void open(int i, int j) {    // open site (row i, column j) if it is not open already
         if (!isOpen(i, j)) {
             int fieldIndex = getFieldIndexInQuickUnionStructure(i, j);
-            connectIfOpen(fieldIndex, i - 1, j);
+
+            if (i == 1) {
+                quickUnionStructure.union(virtualTopSite, fieldIndex);
+            }
+            if (i == gridSize) {
+                quickUnionStructure.union(virtualBottomSite, fieldIndex);
+            }
+
             connectIfOpen(fieldIndex, i + 1, j);
+            connectIfOpen(fieldIndex, i - 1, j);
             connectIfOpen(fieldIndex, i, j - 1);
             connectIfOpen(fieldIndex, i, j + 1);
+
             grid[i - 1][j - 1] = true;
         }
     }
