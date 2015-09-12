@@ -1,5 +1,3 @@
-package de.ingo.percolation;
-
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
@@ -9,7 +7,7 @@ import edu.princeton.cs.algs4.StdStats;
  * @author ISchwarz
  */
 public class PercolationStats {
-    
+
     private final double mean;
     private final double stddev;
     private final double confidenceLo;
@@ -24,7 +22,7 @@ public class PercolationStats {
             throw new IllegalArgumentException("The number of experiments must be bigger than zero");
         }
 
-        double[] perculationThresholds = new double[T];
+        double[] percolationThresholds = new double[T];
         for (int i = 0; i < T; i++) {
             Percolation percolation = new Percolation(N);
 
@@ -42,11 +40,11 @@ public class PercolationStats {
                 runs++;
             }
 
-            perculationThresholds[i] = runs / (double) (N * N);
+            percolationThresholds[i] = runs / (double) (N * N);
         }
 
-        mean = StdStats.mean(perculationThresholds);
-        stddev = StdStats.stddev(perculationThresholds);
+        mean = StdStats.mean(percolationThresholds);
+        stddev = StdStats.stddev(percolationThresholds);
         double confidenceFraction = (1.96*stddev())/Math.sqrt(T);
         confidenceLo = mean - confidenceFraction;
         confidenceHi = mean + confidenceFraction;
