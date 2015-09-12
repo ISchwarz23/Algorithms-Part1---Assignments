@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+
 /**
  * Tests for the {@link Percolation} class.
  * @author ISchwarz
@@ -13,6 +14,7 @@ public class PercolationTest {
     private static final int GRID_SIZE = 5;
     private Percolation percolation;
 
+    
     @Before
     public void setUp() {
         percolation = new Percolation(GRID_SIZE);
