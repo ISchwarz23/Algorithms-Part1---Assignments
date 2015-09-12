@@ -35,11 +35,11 @@ public class PercolationTest {
     @Test
     public void shouldPercolate() {
         // when
-        percolation.open(1, 1);
         percolation.open(1, 2);
-        percolation.open(1, 3);
-        percolation.open(1, 4);
-        percolation.open(1, 5);
+        percolation.open(2, 2);
+        percolation.open(3, 2);
+        percolation.open(4, 2);
+        percolation.open(5, 2);
 
         // then
         assertTrue(percolation.percolates());
@@ -70,10 +70,10 @@ public class PercolationTest {
     @Test
     public void shouldNotBeFull() {
         // when
-        percolation.open(1, 2);
+        percolation.open(3, 2);
 
         // then
-        assertFalse(percolation.isFull(1, 2));
+        assertFalse(percolation.isFull(3, 2));
     }
 
     @Test(expected = IllegalArgumentException.class)
