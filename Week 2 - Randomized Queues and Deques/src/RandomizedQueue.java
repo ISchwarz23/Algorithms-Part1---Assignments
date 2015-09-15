@@ -85,8 +85,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
 
     private static class InternalItem<I> {
-        I value;
-        InternalItem<I> previousItem;
+        private I value;
+        private InternalItem<I> previousItem;
     }
 
     private static class RandomIterator<Item> implements Iterator<Item> {
@@ -100,15 +100,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
         private Item[] getItems(InternalItem<Item> lastItem, int size) {
-            Item[] items = (Item[]) new Object[size];
+            Item[] itemArray = (Item[]) new Object[size];
             InternalItem<Item> item = lastItem;
 
             for (int i = 0; i < size; i++) {
-                items[i] = item.value;
+                itemArray[i] = item.value;
                 item = item.previousItem;
             }
 
-            return items;
+            return itemArray;
         }
 
         @Override

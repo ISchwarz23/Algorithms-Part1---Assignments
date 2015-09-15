@@ -98,6 +98,13 @@ public class Deque<Item> implements Iterable<Item> {
         return oldLastItem.value;
     }
 
+
+    private static class InternalItem<Item> {
+        private Item value;
+        private InternalItem<Item> nextItem;
+        private InternalItem<Item> previousItem;
+    }
+
     @Override
     public Iterator<Item> iterator() {
         return new ForwardIterator();
@@ -127,12 +134,6 @@ public class Deque<Item> implements Iterable<Item> {
         public void remove() {
             throw new UnsupportedOperationException("Remove is not supported");
         }
-    }
-
-    private static class InternalItem<I> {
-        I value;
-        InternalItem<I> nextItem;
-        InternalItem<I> previousItem;
     }
 
 }
