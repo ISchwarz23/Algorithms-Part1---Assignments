@@ -1,6 +1,7 @@
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
@@ -19,13 +20,28 @@ public class RandomizedQueueTest {
 
     @Test
     public void shouldBeAbleToEnqueueAndDequeueItems() {
+        assertTrue(cut.isEmpty());
         cut.enqueue("foo");
+        assertFalse(cut.isEmpty());
         cut.enqueue("bar");
         assertFalse(cut.isEmpty());
-
         cut.dequeue();
+        assertFalse(cut.isEmpty());
         cut.dequeue();
         assertTrue(cut.isEmpty());
+    }
+
+    @Test
+    public void shouldBeAbleToIterateOverEntries() {
+        cut.enqueue("foo");
+        cut.enqueue("bar");
+
+        Iterator<String> iterator = cut.iterator();
+        assertTrue(iterator.hasNext());
+        iterator.next();
+        assertTrue(iterator.hasNext());
+        iterator.next();
+        assertFalse(iterator.hasNext());
     }
 
     @Test(expected = NullPointerException.class)
