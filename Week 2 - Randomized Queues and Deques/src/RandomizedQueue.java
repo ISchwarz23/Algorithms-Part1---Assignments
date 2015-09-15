@@ -21,7 +21,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public void enqueue(Item item) {  // add the item
-        if(item == null) {
+        if (item == null) {
             throw new NullPointerException("It is not allowed to enqueue null values.");
         }
 
@@ -35,9 +35,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Item dequeue() {  // remove and return a random item
         Item returnValue;
 
-        if(size == 0) {
+        if (size == 0) {
             throw new NoSuchElementException("Trying to dequeue an item from an empty RandomQueue.");
-        } else if(size == 1) {
+        } else if (size == 1) {
             returnValue = lastItem.value;
             lastItem = null;
         } else {
@@ -58,9 +58,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Item sample() {  // return (but do not remove) a random item
         Item returnValue;
 
-        if(size == 0) {
+        if (size == 0) {
             throw new NoSuchElementException("Trying to get a sample item from an empty RandomQueue.");
-        } else if(size == 1) {
+        } else if (size == 1) {
             returnValue = lastItem.value;
         } else {
             int indexOfItemToReturn = StdRandom.uniform(size - 1) + 1;
@@ -113,12 +113,12 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         @Override
         public boolean hasNext() {
-            return index < items.length-1;
+            return index < items.length - 1;
         }
 
         @Override
         public Item next() {
-            if(hasNext()) {
+            if (hasNext()) {
                 return items[index++];
             } else {
                 throw new NoSuchElementException();

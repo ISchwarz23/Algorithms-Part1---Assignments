@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 
 /**
  * A queue implementation that allows adding and removing elements at the start and at the end.
+ *
  * @author ISchwarz
  */
 public class Deque<Item> implements Iterable<Item> {
@@ -70,7 +71,7 @@ public class Deque<Item> implements Iterable<Item> {
 
         InternalItem<Item> oldFirstItem = firstItem;
         firstItem = firstItem.nextItem;
-        if(firstItem == null) {
+        if (firstItem == null) {
             lastItem = null;
         } else {
             firstItem.previousItem = null;
@@ -87,7 +88,7 @@ public class Deque<Item> implements Iterable<Item> {
 
         InternalItem<Item> oldLastItem = lastItem;
         lastItem = oldLastItem.previousItem;
-        if(lastItem == null) {
+        if (lastItem == null) {
             firstItem = null;
         } else {
             lastItem.nextItem = null;
