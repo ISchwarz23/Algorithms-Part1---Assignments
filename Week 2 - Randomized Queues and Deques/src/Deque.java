@@ -6,10 +6,10 @@ import java.util.NoSuchElementException;
  * A queue implementation that allows adding and removing elements at the start and at the end.
  * @author ISchwarz
  */
-public class Deque<I> implements Iterable<I> {
+public class Deque<Item> implements Iterable<Item> {
 
-    private Item<I> firstItem = null;
-    private Item<I> lastItem = null;
+    private InternalItem<Item> firstItem = null;
+    private InternalItem<Item> lastItem = null;
     private int size = 0;
 
 
@@ -21,19 +21,19 @@ public class Deque<I> implements Iterable<I> {
         return size;
     }
 
-    public void addFirst(I item) {
+    public void addFirst(Item item) {
         if (item == null) {
             throw new NullPointerException("Can't add null to the deque.");
         }
 
         if (firstItem == null) {
-            Item<I> onlyItem = new Item<>();
+            InternalItem<Item> onlyItem = new InternalItem<>();
             onlyItem.value = item;
             firstItem = onlyItem;
             lastItem = onlyItem;
         } else {
-            Item<I> oldFirstItem = firstItem;
-            firstItem = new Item<>();
+            InternalItem<Item> oldFirstItem = firstItem;
+            firstItem = new InternalItem<>();
             firstItem.value = item;
             firstItem.nextItem = oldFirstItem;
             oldFirstItem.previousItem = firstItem;
@@ -42,19 +42,19 @@ public class Deque<I> implements Iterable<I> {
         size++;
     }
 
-    public void addLast(I item) {
+    public void addLast(Item item) {
         if (item == null) {
             throw new NullPointerException("Can't add null to the deque.");
         }
 
         if (lastItem == null) {
-            Item<I> onlyItem = new Item<>();
+            InternalItem<Item> onlyItem = new InternalItem<>();
             onlyItem.value = item;
             firstItem = onlyItem;
             lastItem = onlyItem;
         } else {
-            Item<I> oldLastItem = lastItem;
-            lastItem = new Item<>();
+            InternalItem<Item> oldLastItem = lastItem;
+            lastItem = new InternalItem<>();
             lastItem.value = item;
             lastItem.previousItem = oldLastItem;
             oldLastItem.nextItem = lastItem;
@@ -63,12 +63,12 @@ public class Deque<I> implements Iterable<I> {
         size++;
     }
 
-    public I removeFirst() {
+    public Item removeFirst() {
         if (firstItem == null) {
             throw new NoSuchElementException("Client tries to remove an Item from empty deque.");
         }
 
-        Item<I> oldFirstItem = firstItem;
+        InternalItem<Item> oldFirstItem = firstItem;
         firstItem = firstItem.nextItem;
         if(firstItem == null) {
             lastItem = null;
@@ -80,12 +80,12 @@ public class Deque<I> implements Iterable<I> {
         return oldFirstItem.value;
     }
 
-    public I removeLast() {
+    public Item removeLast() {
         if (lastItem == null) {
             throw new NoSuchElementException("Client tries to remove an Item from empty deque.");
         }
 
-        Item<I> oldLastItem = lastItem;
+        InternalItem<Item> oldLastItem = lastItem;
         lastItem = oldLastItem.previousItem;
         if(lastItem == null) {
             firstItem = null;
@@ -98,13 +98,13 @@ public class Deque<I> implements Iterable<I> {
     }
 
     @Override
-    public Iterator<I> iterator() {
+    public Iterator<Item> iterator() {
         return new ForwardIterator();
     }
 
-    private class ForwardIterator implements Iterator<I> {
+    private class ForwardIterator implements Iterator<Item> {
 
-        private Item<I> currentItem = firstItem;
+        private InternalItem<Item> currentItem = firstItem;
 
         @Override
         public boolean hasNext() {
@@ -112,12 +112,12 @@ public class Deque<I> implements Iterable<I> {
         }
 
         @Override
-        public I next() {
+        public Item next() {
             if (!hasNext()) {
                 throw new NoSuchElementException("No next element available. Reached end of deque.");
             }
 
-            I returnValue = currentItem.value;
+            Item returnValue = currentItem.value;
             currentItem = currentItem.nextItem;
             return returnValue;
         }
@@ -128,10 +128,10 @@ public class Deque<I> implements Iterable<I> {
         }
     }
 
-    private static class Item<I> {
+    private static class InternalItem<I> {
         I value;
-        Item<I> nextItem;
-        Item<I> previousItem;
+        InternalItem<I> nextItem;
+        InternalItem<I> previousItem;
     }
 
 }
