@@ -12,7 +12,7 @@ public class Deque<I> implements Iterable<I> {
     private Item<I> lastItem = null;
     private int size = 0;
 
-    
+
     public boolean isEmpty() {
         return size == 0;
     }
@@ -70,7 +70,11 @@ public class Deque<I> implements Iterable<I> {
 
         Item<I> oldFirstItem = firstItem;
         firstItem = firstItem.nextItem;
-        firstItem.previousItem = null;
+        if(firstItem == null) {
+            lastItem = null;
+        } else {
+            firstItem.previousItem = null;
+        }
         size--;
 
         return oldFirstItem.value;
@@ -83,7 +87,11 @@ public class Deque<I> implements Iterable<I> {
 
         Item<I> oldLastItem = lastItem;
         lastItem = oldLastItem.previousItem;
-        lastItem.nextItem = null;
+        if(lastItem == null) {
+            firstItem = null;
+        } else {
+            lastItem.nextItem = null;
+        }
         size--;
 
         return oldLastItem.value;
