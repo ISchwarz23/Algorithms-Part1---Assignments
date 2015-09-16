@@ -42,13 +42,16 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             lastItem = null;
         } else {
             int indexOfItemToReturn = StdRandom.uniform(size);
-
-            InternalItem<Item> itemAfterItemToReturn = getItem(indexOfItemToReturn - 1);
-            InternalItem<Item> itemToReturn = itemAfterItemToReturn.previousItem;
-            InternalItem<Item> itemBeforeItemToReturn = itemToReturn.previousItem;
-
-            itemAfterItemToReturn.previousItem = itemBeforeItemToReturn;
-            returnValue = itemToReturn.value;
+            if (indexOfItemToReturn == 0) {
+                returnValue = lastItem.value;
+                lastItem = lastItem.previousItem;
+            } else {
+                InternalItem<Item> itemAfterItemToReturn = getItem(indexOfItemToReturn - 1);
+                InternalItem<Item> itemToReturn = itemAfterItemToReturn.previousItem;
+                InternalItem<Item> itemBeforeItemToReturn = itemToReturn.previousItem;
+                itemAfterItemToReturn.previousItem = itemBeforeItemToReturn;
+                returnValue = itemToReturn.value;
+            }
         }
         size--;
 

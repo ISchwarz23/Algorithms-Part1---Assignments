@@ -50,6 +50,38 @@ public class RandomizedQueueTest {
     }
 
     @Test
+    public void shouldRandomlyDequeueItems() {
+        int frequencyA = 0;
+        int frequencyB = 0;
+        int frequencyC = 0;
+
+        for(int i=0; i<3000; i++) {
+            cut = new RandomizedQueue<>();
+            cut.enqueue("A");
+            cut.enqueue("B");
+            cut.enqueue("C");
+
+            String item = cut.dequeue();
+            switch (item) {
+                case "A":
+                    frequencyA++;
+                    break;
+                case "B":
+                    frequencyB++;
+                    break;
+                case "C":
+                    frequencyC++;
+                    break;
+            }
+        }
+
+        String errorMessage = "Dequeue is not random [A:" + frequencyA+", B:"+frequencyB + ", C:" + frequencyC +"]";
+        assertTrue(errorMessage, 500 < frequencyA && frequencyA < 1500);
+        assertTrue(errorMessage, 500 < frequencyB && frequencyB < 1500);
+        assertTrue(errorMessage, 500 < frequencyC && frequencyC < 1500);
+    }
+
+    @Test
     public void shouldIterateOverAllElements() {
         List<String> items = new ArrayList<>();
         for (char c = 'a'; c < 'z'; c++) {
