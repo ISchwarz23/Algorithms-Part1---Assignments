@@ -8,11 +8,13 @@ import java.util.NoSuchElementException;
  */
 public class RandomizedQueue<Item> implements Iterable<Item> {
 
+    private static final int MINIMUM_STORAGE_SIZE = 2;
+
     private Item[] items;
     private int size;
 
     public RandomizedQueue() {
-        items = (Item[]) new Object[2];
+        items = (Item[]) new Object[MINIMUM_STORAGE_SIZE];
         size = 0;
     }
 
@@ -36,18 +38,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         items[size++] = item;
     }
 
-    private boolean isStorageFull() {
-        return items.length == size;
-    }
-
-    private void doubleStorage() {
-        Item[] newItemStorage = (Item[]) new Object[items.length * 2];
-        for (int i = 0; i < size; i++) {
-            newItemStorage[i] = items[i];
-        }
-        items = newItemStorage;
-    }
-
     public Item dequeue() {  // remove and return a random item
         if (size == 0) {
             throw new NoSuchElementException("Trying to dequeue an item from an empty RandomQueue.");
@@ -59,7 +49,35 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         items[indexOfItemToReturn] = items[size];
         items[size] = null;
 
+        if (isStorageOversized()) {
+            halveStorage();
+        }
+
         return returnValue;
+    }
+
+    private boolean isStorageFull() {
+        return items.length == size;
+    }
+
+    private boolean isStorageOversized() {
+        return items.length > MINIMUM_STORAGE_SIZE && size <= items.length / 4;
+    }
+
+    private void halveStorage() {
+        resizeStorage(items.length / 2);
+    }
+
+    private void doubleStorage() {
+        resizeStorage(items.length * 2);
+    }
+
+    private void resizeStorage(int newSize) {
+        Item[] newItemStorage = (Item[]) new Object[newSize];
+        for (int i = 0; i < size; i++) {
+            newItemStorage[i] = items[i];
+        }
+        items = newItemStorage;
     }
 
     public Item sample() {  // return (but do not remove) a random item

@@ -1,3 +1,4 @@
+import edu.princeton.cs.algs4.StdRandom;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class RandomizedQueueTest {
         int frequencyB = 0;
         int frequencyC = 0;
 
-        for(int i=0; i<3000; i++) {
+        for (int i = 0; i < 3000; i++) {
             cut = new RandomizedQueue<>();
             cut.enqueue("A");
             cut.enqueue("B");
@@ -75,7 +76,7 @@ public class RandomizedQueueTest {
             }
         }
 
-        String errorMessage = "Dequeue is not random [A:" + frequencyA+", B:"+frequencyB + ", C:" + frequencyC +"]";
+        String errorMessage = "Dequeue is not random [A:" + frequencyA + ", B:" + frequencyB + ", C:" + frequencyC + "]";
         assertTrue(errorMessage, 500 < frequencyA && frequencyA < 1500);
         assertTrue(errorMessage, 500 < frequencyB && frequencyB < 1500);
         assertTrue(errorMessage, 500 < frequencyC && frequencyC < 1500);
@@ -107,6 +108,21 @@ public class RandomizedQueueTest {
         assertTrue(iterator.hasNext());
         iterator.next();
         assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void shouldStandStress() {
+        for (int i = 0; i < 5000; i++) {
+            if (cut.size() == 0) {
+                cut.enqueue(new String("foo"));
+            } else {
+                if (StdRandom.uniform(1000) % 2 == 0) {
+                    cut.enqueue(new String("bar"));
+                } else {
+                    cut.dequeue();
+                }
+            }
+        }
     }
 
     @Test(expected = NullPointerException.class)
