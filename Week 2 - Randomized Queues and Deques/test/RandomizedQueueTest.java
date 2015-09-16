@@ -1,7 +1,9 @@
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
@@ -19,16 +21,47 @@ public class RandomizedQueueTest {
     }
 
     @Test
-    public void shouldBeAbleToEnqueueAndDequeueItems() {
-        assertTrue(cut.isEmpty());
-        cut.enqueue("foo");
-        assertFalse(cut.isEmpty());
-        cut.enqueue("bar");
-        assertFalse(cut.isEmpty());
-        cut.dequeue();
-        assertFalse(cut.isEmpty());
-        cut.dequeue();
-        assertTrue(cut.isEmpty());
+    public void shouldEnqueueAndDequeueAllElements() {
+        List<String> items = new ArrayList<>();
+        for (char c = 'a'; c < 'z'; c++) {
+            cut.enqueue("" + c);
+            items.add("" + c);
+        }
+        assertEquals(items.size(), cut.size());
+
+        while (!cut.isEmpty()) {
+            items.remove(cut.dequeue());
+        }
+        assertTrue(items.isEmpty());
+    }
+
+    @Test
+    public void shouldSampleAllElements() {
+        List<String> items = new ArrayList<>();
+        for (char c = 'a'; c < 'z'; c++) {
+            cut.enqueue("" + c);
+            items.add("" + c);
+        }
+        assertEquals(items.size(), cut.size());
+
+        while (!items.isEmpty()) {
+            items.remove(cut.sample());
+        }
+    }
+
+    @Test
+    public void shouldIterateOverAllElements() {
+        List<String> items = new ArrayList<>();
+        for (char c = 'a'; c < 'z'; c++) {
+            cut.enqueue("" + c);
+            items.add("" + c);
+        }
+        assertEquals(items.size(), cut.size());
+
+        for (String aCut : cut) {
+            items.remove(aCut);
+        }
+        assertTrue(items.isEmpty());
     }
 
     @Test

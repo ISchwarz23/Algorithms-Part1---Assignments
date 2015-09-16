@@ -41,7 +41,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             returnValue = lastItem.value;
             lastItem = null;
         } else {
-            int indexOfItemToReturn = StdRandom.uniform(size - 1) + 1;
+            int indexOfItemToReturn = StdRandom.uniform(size);
 
             InternalItem<Item> itemAfterItemToReturn = getItem(indexOfItemToReturn - 1);
             InternalItem<Item> itemToReturn = itemAfterItemToReturn.previousItem;
@@ -59,11 +59,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         Item returnValue;
 
         if (size == 0) {
-            throw new NoSuchElementException("Trying to get a sample item from an empty RandomQueue.");
+            throw new NoSuchElementException("Trying to sample an item from an empty RandomQueue.");
         } else if (size == 1) {
             returnValue = lastItem.value;
         } else {
-            int indexOfItemToReturn = StdRandom.uniform(size - 1) + 1;
+            int indexOfItemToReturn = StdRandom.uniform(size);
             returnValue = getItem(indexOfItemToReturn).value;
         }
 
