@@ -8,12 +8,16 @@ import java.util.NoSuchElementException;
  */
 public class RandomizedQueue<Item> implements Iterable<Item> {
 
-    private InternalItem<Item> lastItem = null;
-    private int size = 0;
+    private Item[] items;
+    private int size;
 
+    public RandomizedQueue() {
+        items = (Item[]) new Object[2];
+        size = 0;
+    }
 
     public boolean isEmpty() {  // is the queue empty?
-        return lastItem == null;
+        return size == 0;
     }
 
     public int size() {  // return the number of items on the queue
@@ -25,104 +29,79 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             throw new NullPointerException("It is not allowed to enqueue null values.");
         }
 
-        InternalItem<Item> newItem = new InternalItem<>();
-        newItem.value = item;
-        newItem.previousItem = lastItem;
-        lastItem = newItem;
-        size++;
+        if (isStorageFull()) {
+            doubleStorage();
+        }
+
+        items[size++] = item;
+    }
+
+    private boolean isStorageFull() {
+        return items.length == size;
+    }
+
+    private void doubleStorage() {
+        Item[] newItemStorage = (Item[]) new Object[items.length * 2];
+        for (int i = 0; i < size; i++) {
+            newItemStorage[i] = items[i];
+        }
+        items = newItemStorage;
     }
 
     public Item dequeue() {  // remove and return a random item
-        Item returnValue;
-
         if (size == 0) {
             throw new NoSuchElementException("Trying to dequeue an item from an empty RandomQueue.");
-        } else if (size == 1) {
-            returnValue = lastItem.value;
-            lastItem = null;
-        } else {
-            int indexOfItemToReturn = StdRandom.uniform(size);
-            if (indexOfItemToReturn == 0) {
-                returnValue = lastItem.value;
-                lastItem = lastItem.previousItem;
-            } else {
-                InternalItem<Item> itemAfterItemToReturn = getItem(indexOfItemToReturn - 1);
-                InternalItem<Item> itemToReturn = itemAfterItemToReturn.previousItem;
-                InternalItem<Item> itemBeforeItemToReturn = itemToReturn.previousItem;
-                itemAfterItemToReturn.previousItem = itemBeforeItemToReturn;
-                returnValue = itemToReturn.value;
-            }
         }
-        size--;
+
+        int indexOfItemToReturn = StdRandom.uniform(size);
+        Item returnValue = items[indexOfItemToReturn];
+        items[indexOfItemToReturn] = items[--size];
 
         return returnValue;
     }
 
     public Item sample() {  // return (but do not remove) a random item
-        Item returnValue;
-
         if (size == 0) {
             throw new NoSuchElementException("Trying to sample an item from an empty RandomQueue.");
-        } else if (size == 1) {
-            returnValue = lastItem.value;
-        } else {
-            int indexOfItemToReturn = StdRandom.uniform(size);
-            returnValue = getItem(indexOfItemToReturn).value;
         }
 
-        return returnValue;
-    }
-
-    private InternalItem<Item> getItem(int indexFromEnd) {
-        InternalItem<Item> itemToReturn = lastItem;
-        for (int i = 0; i < indexFromEnd; i++) {
-            itemToReturn = itemToReturn.previousItem;
-        }
-        return itemToReturn;
+        int indexOfItemToReturn = StdRandom.uniform(size);
+        return items[indexOfItemToReturn];
     }
 
     @Override
     public Iterator<Item> iterator() {
-        return new RandomIterator<>(lastItem, size);
+        return new RandomIterator();
     }
 
 
-    private static class InternalItem<I> {
-        private I value;
-        private InternalItem<I> previousItem;
-    }
+    private class RandomIterator implements Iterator<Item> {
 
-    private static class RandomIterator<Item> implements Iterator<Item> {
-
-        private Item[] items;
+        private Item[] iteratorItems;
         private int index;
 
-        public RandomIterator(InternalItem<Item> lastItem, int size) {
-            items = getItems(lastItem, size);
-            StdRandom.shuffle(items);
+        public RandomIterator() {
+            iteratorItems = copyRandomQueueItems();
+            StdRandom.shuffle(iteratorItems);
         }
 
-        private Item[] getItems(InternalItem<Item> lastItem, int size) {
-            Item[] itemArray = (Item[]) new Object[size];
-            InternalItem<Item> item = lastItem;
-
+        private Item[] copyRandomQueueItems() {
+            Item[] copiedItems = (Item[]) new Object[size];
             for (int i = 0; i < size; i++) {
-                itemArray[i] = item.value;
-                item = item.previousItem;
+                copiedItems[i] = items[i];
             }
-
-            return itemArray;
+            return copiedItems;
         }
 
         @Override
         public boolean hasNext() {
-            return index < items.length;
+            return index < iteratorItems.length;
         }
 
         @Override
         public Item next() {
             if (hasNext()) {
-                return items[index++];
+                return iteratorItems[index++];
             } else {
                 throw new NoSuchElementException();
             }
