@@ -11,6 +11,7 @@ public class BruteCollinearPoints {
     private LineSegment[] segments;
 
     public BruteCollinearPoints(Point[] points) {
+        checkDuplicatedEntries(points);
         ArrayList<LineSegment> foundSegments = new ArrayList<>();
 
         for (int p = 0; p < points.length - 3; p++) {
@@ -42,6 +43,16 @@ public class BruteCollinearPoints {
 
     public LineSegment[] segments() {
         return segments;
+    }
+
+    private void checkDuplicatedEntries(Point[] points) {
+        for(int i=0; i<points.length-1; i++) {
+            for(int j=i+1; j<points.length; j++) {
+                if (points[i].compareTo(points[j]) == 0) {
+                    throw new IllegalArgumentException("Duplicated entries in given points.");
+                }
+            }
+        }
     }
 
 }

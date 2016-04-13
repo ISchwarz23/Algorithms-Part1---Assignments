@@ -1,37 +1,36 @@
-import static org.junit.Assert.*;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for the {@link BruteCollinearPoints} class.
- * @author ISchwarz
+ * Created by Ingo on 23.09.2015.
  */
-public class BruteCollinearPointsTest {
+public class FastCollinearPointsTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowNullPointerExceptionIfNullIsPassedToConstructor() {
-        new BruteCollinearPoints(null);
+        new FastCollinearPoints(null);
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowNullPointerExceptionIfOnePointIsNull() {
         Point[] points = new Point[] { new Point(0, 0), new Point(1, 1), null, new Point(3, 3)};
-        new BruteCollinearPoints(points);
+        new FastCollinearPoints(points);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIllegalArgumentExceptionIfPointIsGivenTwice() {
         Point[] points = new Point[] { new Point(0, 0), new Point(1, 1), new Point(0, 0), new Point(3, 3)};
-        new BruteCollinearPoints(points);
+        new FastCollinearPoints(points);
     }
 
     @Test
     public void shouldFindHorizontalLineSegment() {
         // given
-        Point[] points = new Point[] { new Point(0, 0), new Point(1, 1), new Point(1, 0), new Point(2, 0), new Point(3, 0)};
+        Point[] points = new Point[] { new Point(0, 0), new Point(1, 0), new Point(3, 0), new Point(1, 1), new Point(2, 0)};
 
         // when
-        BruteCollinearPoints cut = new BruteCollinearPoints(points);
+        FastCollinearPoints cut = new FastCollinearPoints(points);
 
         // then
         assertEquals(1, cut.numberOfSegments());
@@ -39,7 +38,7 @@ public class BruteCollinearPointsTest {
     }
 
     @Test
-    public void shouldFindVerticalLineSegment() {
+     public void shouldFindVerticalLineSegment() {
         // given
         Point[] points = new Point[] { new Point(0, 0), new Point(1, 1), new Point(0, 1), new Point(0, 2), new Point(0, 3)};
 
