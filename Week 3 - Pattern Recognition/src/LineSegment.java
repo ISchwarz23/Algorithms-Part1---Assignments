@@ -30,19 +30,6 @@ public class LineSegment {
         this.q = q;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        LineSegment that = (LineSegment) o;
-
-        if (!p.equals(that.p)) return false;
-        if (!q.equals(that.q)) return false;
-
-        return true;
-    }
-
     /**
      * Draws this line segment to standard draw.
      */

@@ -43,7 +43,7 @@ public class FastCollinearPointsTest {
         Point[] points = new Point[] { new Point(0, 0), new Point(1, 1), new Point(0, 1), new Point(0, 2), new Point(0, 3)};
 
         // when
-        BruteCollinearPoints cut = new BruteCollinearPoints(points);
+        FastCollinearPoints cut = new FastCollinearPoints(points);
 
         // then
         assertEquals(1, cut.numberOfSegments());
@@ -53,14 +53,14 @@ public class FastCollinearPointsTest {
     @Test
     public void shouldFindLineSegment1() {
         // given
-        Point[] points = new Point[] { new Point(0, 0), new Point(1, 1), new Point(0, 1), new Point(2, 2), new Point(3, 3)};
+        Point[] points = new Point[] { new Point(0, 0), new Point(1, 1), new Point(0, 1), new Point(2, 2), new Point(3, 3), new Point(4, 4), new Point(5, 5)};
 
         // when
-        BruteCollinearPoints cut = new BruteCollinearPoints(points);
+        FastCollinearPoints cut = new FastCollinearPoints(points);
 
         // then
         assertEquals(1, cut.numberOfSegments());
-        assertEquals("(0, 0) -> (3, 3)", cut.segments()[0].toString());
+        assertEquals("(0, 0) -> (5, 5)", cut.segments()[0].toString());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class FastCollinearPointsTest {
         Point[] points = new Point[] { new Point(0, 0), new Point(1, 2), new Point(0, 1), new Point(2, 4), new Point(3, 6)};
 
         // when
-        BruteCollinearPoints cut = new BruteCollinearPoints(points);
+        FastCollinearPoints cut = new FastCollinearPoints(points);
 
         // then
         assertEquals(1, cut.numberOfSegments());

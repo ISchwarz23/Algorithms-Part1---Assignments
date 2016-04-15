@@ -9,6 +9,30 @@ import static org.junit.Assert.assertEquals;
 public class TestsFromFile {
 
     @Test
+    public void horizontal25_fast() {
+        FastCollinearPoints cut = new FastCollinearPoints(SampleClient.getPointsFromTestFile("horizontal25.txt"));
+        assertEquals(25, cut.numberOfSegments());
+    }
+
+    @Test
+    public void horizontal50_fast() {
+        FastCollinearPoints cut = new FastCollinearPoints(SampleClient.getPointsFromTestFile("horizontal50.txt"));
+        assertEquals(50, cut.numberOfSegments());
+    }
+
+    @Test
+    public void horizontal75_fast() {
+        FastCollinearPoints cut = new FastCollinearPoints(SampleClient.getPointsFromTestFile("horizontal75.txt"));
+        assertEquals(75, cut.numberOfSegments());
+    }
+
+    @Test
+    public void horizontal100_fast() {
+        FastCollinearPoints cut = new FastCollinearPoints(SampleClient.getPointsFromTestFile("horizontal100.txt"));
+        assertEquals(100, cut.numberOfSegments());
+    }
+
+    @Test
     public void input8_brute() {
         BruteCollinearPoints cut = new BruteCollinearPoints(SampleClient.getPointsFromTestFile("input8.txt"));
         assertEquals(2, cut.numberOfSegments());
@@ -17,6 +41,9 @@ public class TestsFromFile {
     @Test
     public void input8_fast() {
         FastCollinearPoints cut = new FastCollinearPoints(SampleClient.getPointsFromTestFile("input8.txt"));
+        for (LineSegment segment : cut.segments()) {
+            System.out.println(segment);
+        }
         assertEquals(2, cut.numberOfSegments());
     }
 

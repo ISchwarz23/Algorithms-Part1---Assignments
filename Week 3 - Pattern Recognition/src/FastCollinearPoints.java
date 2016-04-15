@@ -4,74 +4,78 @@ import java.util.Arrays;
 
 /**
  * A fst solution of finding colinear points in a set of points.
+ *
  * @author ISchwarz
  */
 public class FastCollinearPoints {
 
-    private LineSegment[] segments;
+    private ArrayList<PointTuple> tuples = new ArrayList<>();
+    private ArrayList<LineSegment> segments = new ArrayList<>();
+
 
     public FastCollinearPoints(Point[] points) {
         checkDuplicatedEntries(points);
-        ArrayList<LineSegment> foundSegments = new ArrayList<>();
 
-        Arrays.sort(points);
-        Point[] sortedPoints = Arrays.copyOf(points, points.length);
+        Point[] pointsCopy = Arrays.copyOf(points, points.length);
 
-        for(Point p : sortedPoints) {
-            Arrays.sort(points);
-            Arrays.sort(points, p.slopeOrder());
+        for (Point currentPoint : points) {
+            Arrays.sort(pointsCopy, currentPoint.slopeOrder());
 
-            int slopeCounter = 0;
-            Point startPoint = points[0];
-            Point endPoint = points[0];
-            for(int i=1; i< points.length; i++) {
-                if(p.slopeTo(points[i]) == p.slopeTo(points[i-1])) {
-                    slopeCounter++;
-                    if(points[i].compareTo(startPoint) < 0) {
-                        startPoint = points[i];
-                    } else if(points[i].compareTo(endPoint) > 0){
-                        endPoint = points[i];
+            Point startPoint = pointsCopy[0];
+            Point endPoint = pointsCopy[0];
+
+            double previousSlope = currentPoint.slopeTo(startPoint);
+            double currentSlope;
+            int slopeLength = 0;
+
+            for (int i = 1; i < pointsCopy.length; i++) {
+                currentSlope = currentPoint.slopeTo(pointsCopy[i]);
+                if (currentSlope == previousSlope) {
+                    if (pointsCopy[i].compareTo(startPoint) < 0) {
+                        startPoint = pointsCopy[i];
+                    } else if (pointsCopy[i].compareTo(endPoint) > 0) {
+                        endPoint = pointsCopy[i];
                     }
+                    slopeLength++;
                 } else {
-                    if(points[0].compareTo(startPoint) < 0) {
-                        startPoint = points[0];
-                    } else if(points[0].compareTo(endPoint) > 0){
-                        endPoint = points[0];
-                    }
-
-                    if(slopeCounter >= 2) {
-                        LineSegment newSegment = new LineSegment(startPoint, endPoint);
-                        if(!foundSegments.contains(newSegment)) {
-                            foundSegments.add(newSegment);
+                    if (slopeLength >= 2) {
+                        if (currentPoint.compareTo(startPoint) < 0) {
+                            startPoint = currentPoint;
+                        } else if (currentPoint.compareTo(endPoint) > 0) {
+                            endPoint = currentPoint;
                         }
+                        addSlopeIfNotAddedYet(startPoint, endPoint);
                     }
-                    slopeCounter = 0;
-                    startPoint = points[i];
-                    endPoint = points[i];
+                    startPoint = pointsCopy[i];
+                    endPoint = pointsCopy[i];
+                    slopeLength = 0;
                 }
+                previousSlope = currentSlope;
             }
 
-
-            if(points[0].compareTo(startPoint) < 0) {
-                startPoint = points[0];
-            } else if(points[0].compareTo(endPoint) > 0){
-                endPoint = points[0];
-            }
-
-            if(slopeCounter >= 2) {
-                LineSegment newSegment = new LineSegment(startPoint, endPoint);
-                if(!foundSegments.contains(newSegment)) {
-                    foundSegments.add(newSegment);
+            if (slopeLength >= 2) {
+                if (currentPoint.compareTo(startPoint) < 0) {
+                    startPoint = currentPoint;
+                } else if (currentPoint.compareTo(endPoint) > 0) {
+                    endPoint = currentPoint;
                 }
+                addSlopeIfNotAddedYet(startPoint, endPoint);
             }
         }
-
-        segments = foundSegments.toArray(new LineSegment[foundSegments.size()]);
     }
 
+    private void addSlopeIfNotAddedYet(Point startPoint, Point endPoint) {
+        PointTuple tuple = new PointTuple(startPoint, endPoint);
+        if (!tuples.contains(tuple)) {
+            tuples.add(tuple);
+            segments.add(tuple.toLineSegment());
+        }
+    }
+
+
     private void checkDuplicatedEntries(Point[] points) {
-        for(int i=0; i<points.length-1; i++) {
-            for(int j=i+1; j<points.length; j++) {
+        for (int i = 0; i < points.length - 1; i++) {
+            for (int j = i + 1; j < points.length; j++) {
                 if (points[i].compareTo(points[j]) == 0) {
                     throw new IllegalArgumentException("Duplicated entries in given points.");
                 }
@@ -80,11 +84,47 @@ public class FastCollinearPoints {
     }
 
     public int numberOfSegments() {
-        return segments.length;
+        return segments.size();
     }
 
     public LineSegment[] segments() {
-        return segments;
+        return segments.toArray(new LineSegment[segments.size()]);
+    }
+
+
+    private class PointTuple {
+
+        private final Point p1;
+        private final Point p2;
+
+        private PointTuple(Point p1, Point p2) {
+            this.p1 = p1;
+            this.p2 = p2;
+        }
+
+        public LineSegment toLineSegment() {
+            return new LineSegment(p1, p2);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            PointTuple that = (PointTuple) o;
+
+            if (p1.compareTo(that.p1) != 0) return false;
+            if (p2.compareTo(that.p2) != 0) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = p1.hashCode();
+            result = 31 * result + p2.hashCode();
+            return result;
+        }
     }
 
 
