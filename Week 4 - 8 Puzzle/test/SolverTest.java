@@ -36,7 +36,7 @@ public class SolverTest {
                 case 4: assertTrue(board.equals(new Board(new int[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 0}})));
                     break;
                 default:
-                    fail("To many steps given");
+                    fail("Too many steps given");
 
             }
             currentStep++;

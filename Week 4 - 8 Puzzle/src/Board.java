@@ -140,11 +140,11 @@ public class Board {
     }
 
     public String toString() {
-        String boardString = "";
+        String boardString = blocks.length + "\n";
 
         for (int[] row : blocks) {
             for (int block : row) {
-                boardString += block + " ";
+                boardString += " " + block;
             }
             boardString += "\n";
         }
