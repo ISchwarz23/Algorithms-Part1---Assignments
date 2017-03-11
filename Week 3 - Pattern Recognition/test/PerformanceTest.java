@@ -19,6 +19,9 @@ public class PerformanceTest {
 
         System.out.println("Elapsed Time:\t" + elapsedTime);
         System.out.println("Found Segments:\t" + cut.numberOfSegments());
+//        for(LineSegment segment : cut.segments()) {
+//            System.out.println(segment);
+//        }
     }
 
     private Point[] getTestGrid(int n) {
