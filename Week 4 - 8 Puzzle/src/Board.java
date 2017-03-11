@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 /**
@@ -11,22 +12,17 @@ import java.util.List;
 public class Board {
 
     private Board[] neighbors;
-    private int[][] blocks;
-
-    private int iTwinIndex = 0;
-    private int jTwinIndex = 0;
-    private int iTwinExchangeIndex = 0;
-    private int jTwinExchangeIndex = 0;
+    private int[][] tiles;
 
 
-    public Board(int[][] blocks) {          // construct a board from an N-by-N array of blocks
-        this.blocks = blocks;               // (where blocks[i][j] = block in row i, column j)
+    public Board(int[][] blocks) {          // construct a board from an N-by-N array of tiles
+        this.tiles = copy(blocks);          // (where tiles[i][j] = block in row i, column j)
     }
 
-    private int[][] getBlocksCopy() {
-        int[][] copy = new int[blocks.length][];
-        for (int r = 0; r < blocks.length; r++) {
-            copy[r] = blocks[r].clone();
+    private int[][] copy(int[][] arrayToCopy) {
+        int[][] copy = new int[arrayToCopy.length][];
+        for (int r = 0; r < arrayToCopy.length; r++) {
+            copy[r] = arrayToCopy[r].clone();
         }
         return copy;
     }
@@ -38,26 +34,26 @@ public class Board {
     }
 
     public int dimension() {                // board dimension N
-        return blocks.length;
+        return tiles.length;
     }
 
-    public int hamming() {                  // number of blocks out of place
+    public int hamming() {                  // number of tiles out of place
         int value = -1;
-        for (int i = 0; i < blocks.length; i++) {
-            for (int j = 0; j < blocks[i].length; j++) {
-                if (blocks[i][j] != (i * blocks.length + j + 1)) value++;
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[i].length; j++) {
+                if (tiles[i][j] != (i * tiles.length + j + 1)) value++;
             }
         }
         return value;
     }
 
-    public int manhattan() {                // sum of Manhattan distances between blocks and goal
+    public int manhattan() {                // sum of Manhattan distances between tiles and goal
         int value = 0;
-        for (int i = 0; i < blocks.length; i++) {
-            for (int j = 0; j < blocks[i].length; j++) {
-                int expectedValue = (i * blocks.length + j + 1);
-                if (blocks[i][j] != expectedValue && blocks[i][j] != 0) {
-                    int actualValue = blocks[i][j];
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[i].length; j++) {
+                int expectedValue = (i * tiles.length + j + 1);
+                if (tiles[i][j] != expectedValue && tiles[i][j] != 0) {
+                    int actualValue = tiles[i][j];
                     actualValue--;
                     int goalI = actualValue / dimension();
                     int goalJ = actualValue % dimension();
@@ -69,49 +65,23 @@ public class Board {
     }
 
     public boolean isGoal() {               // is this board the goal board?
-        for (int i = 0; i < blocks.length; i++) {
-            for (int j = 0; j < blocks[i].length; j++) {
-                if (blocks[i][j] != (i * blocks.length + j + 1) && (i != dimension() - 1 && j != dimension() - 1))
-                    return false;
-            }
-        }
-        return true;
+        return hamming() == 0;
     }
 
-    public Board twin() {                   // a board that is obtained by exchanging any pair of blocks
-        jTwinExchangeIndex++;
-        if (jTwinExchangeIndex >= dimension()) {
-            iTwinExchangeIndex++;
-            jTwinExchangeIndex = 0;
-            if (iTwinExchangeIndex >= dimension()) {
-                jTwinIndex++;
-                if (jTwinIndex >= dimension()) {
-                    iTwinIndex++;
-                    jTwinIndex = 0;
-                    if (iTwinIndex >= dimension()) {
-                        iTwinIndex = 0;
-                    }
-                }
-                iTwinExchangeIndex = iTwinIndex;
-                jTwinExchangeIndex = jTwinIndex+1;
+    public Board twin() {                   // a board that is obtained by exchanging any pair of tiles
+        int[][] twinBlocks = copy(tiles);
 
-                if (jTwinExchangeIndex >= dimension()) {
-                    iTwinExchangeIndex++;
-                    jTwinExchangeIndex = 0;
-                }
-
-                if(iTwinIndex == dimension()-1 && jTwinIndex == dimension()-1) {
-                    iTwinIndex = 0;
-                    jTwinIndex = 0;
-                    iTwinExchangeIndex = 0;
-                    jTwinExchangeIndex = 1;
-                }
+        int i = 0;
+        int j = 0;
+        while (twinBlocks[i][j] == 0 || twinBlocks[i][j + 1] == 0) {
+            j++;
+            if (j >= twinBlocks.length - 1) {
+                i++;
+                j = 0;
             }
         }
 
-        int[][] twinBlocks = getBlocksCopy();
-        exchangeBlocks(twinBlocks, iTwinIndex, jTwinIndex, iTwinExchangeIndex, jTwinExchangeIndex);
-
+        exchangeBlocks(twinBlocks, i, j, i, j + 1);
         return new Board(twinBlocks);
     }
 
@@ -121,43 +91,49 @@ public class Board {
         if (y == null || getClass() != y.getClass()) return false;
 
         Board that = (Board) y;
-        if (this.blocks.length != that.blocks.length) return false;
-        for (int i = 0; i < blocks.length; i++) {
-            if (this.blocks[i].length != that.blocks[i].length) return false;
-            for (int j = 0; j < blocks[i].length; j++) {
-                if (this.blocks[i][j] != that.blocks[i][j]) return false;
+        if (this.tiles.length != that.tiles.length) return false;
+        for (int i = 0; i < tiles.length; i++) {
+            if (this.tiles[i].length != that.tiles[i].length) return false;
+            for (int j = 0; j < tiles[i].length; j++) {
+                if (this.tiles[i][j] != that.tiles[i][j]) return false;
             }
         }
 
         return true;
     }
 
-    public Iterator<Board> neighbors() {    // all neighboring boards
-        if (neighbors == null) {
-            findNeighbors();
-        }
-        return new NeighborIterator();
+    public Iterable<Board> neighbors() {    // all neighboring boards
+        return new Iterable<Board>() {
+            @Override
+            public Iterator<Board> iterator() {
+                if (neighbors == null) {
+                    findNeighbors();
+                }
+                return new NeighborIterator();
+            }
+        };
     }
 
     public String toString() {
-        String boardString = blocks.length + "\n";
+        StringBuilder boardStringBuilder = new StringBuilder(tiles.length + "\n");
 
-        for (int[] row : blocks) {
+        for (int[] row : tiles) {
             for (int block : row) {
-                boardString += " " + block;
+                boardStringBuilder.append(" ");
+                boardStringBuilder.append(block);
             }
-            boardString += "\n";
+            boardStringBuilder.append("\n");
         }
 
-        return boardString;
+        return boardStringBuilder.toString();
     }
 
     private void findNeighbors() {
-        List<Board> neighbors = new ArrayList<>();
+        List<Board> foundNeighbors = new ArrayList<>();
         int i = 0;
         int j = 0;
 
-        while (blocks[i][j] != 0) {
+        while (tiles[i][j] != 0) {
             j++;
             if (j >= dimension()) {
                 i++;
@@ -166,27 +142,27 @@ public class Board {
         }
 
         if (i > 0) {
-            int[][] neighborBlocks = getBlocksCopy();
-            exchangeBlocks(neighborBlocks, i - 1, j, i, j);
-            neighbors.add(new Board(neighborBlocks));
+            int[][] neighborTiles = copy(tiles);
+            exchangeBlocks(neighborTiles, i - 1, j, i, j);
+            foundNeighbors.add(new Board(neighborTiles));
         }
         if (i < dimension() - 1) {
-            int[][] neighborBlocks = getBlocksCopy();
-            exchangeBlocks(neighborBlocks, i, j, i + 1, j);
-            neighbors.add(new Board(neighborBlocks));
+            int[][] neighborTiles = copy(tiles);
+            exchangeBlocks(neighborTiles, i, j, i + 1, j);
+            foundNeighbors.add(new Board(neighborTiles));
         }
         if (j > 0) {
-            int[][] neighborBlocks = getBlocksCopy();
-            exchangeBlocks(neighborBlocks, i, j - 1, i, j);
-            neighbors.add(new Board(neighborBlocks));
+            int[][] neighborTiles = copy(tiles);
+            exchangeBlocks(neighborTiles, i, j - 1, i, j);
+            foundNeighbors.add(new Board(neighborTiles));
         }
         if (j < dimension() - 1) {
-            int[][] neighborBlocks = getBlocksCopy();
-            exchangeBlocks(neighborBlocks, i, j, i, j + 1);
-            neighbors.add(new Board(neighborBlocks));
+            int[][] neighborTiles = copy(tiles);
+            exchangeBlocks(neighborTiles, i, j, i, j + 1);
+            foundNeighbors.add(new Board(neighborTiles));
         }
 
-        this.neighbors = neighbors.toArray(new Board[neighbors.size()]);
+        neighbors = foundNeighbors.toArray(new Board[foundNeighbors.size()]);
     }
 
 
@@ -201,7 +177,11 @@ public class Board {
 
         @Override
         public Board next() {
-            return neighbors[index++];
+            if (hasNext()) {
+                return neighbors[index++];
+            } else {
+                throw new NoSuchElementException("There is no next neighbor.");
+            }
         }
 
         @Override

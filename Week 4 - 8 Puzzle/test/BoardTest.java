@@ -46,34 +46,38 @@ public class BoardTest {
 
     @Test
     public void shouldGiveAllNeighbors() {
-        Iterator<Board> neighborIterator = new Board(EXAMPLE_BLOCKS).neighbors();
         int numberOfNeighbors = 0;
-        while (neighborIterator.hasNext()) {
-            assertNotNull(neighborIterator.next());
+        for (Board neighbor : new Board(EXAMPLE_BLOCKS).neighbors()) {
+            assertNotNull(neighbor);
             numberOfNeighbors++;
         }
         assertEquals(4, numberOfNeighbors);
 
 
-        neighborIterator = new Board(GOAL_BLOCKS).neighbors();
         numberOfNeighbors = 0;
-        while (neighborIterator.hasNext()) {
-            assertNotNull(neighborIterator.next());
+        for (Board neighbor : new Board(GOAL_BLOCKS).neighbors()) {
+            assertNotNull(neighbor);
             numberOfNeighbors++;
         }
         assertEquals(2, numberOfNeighbors);
     }
 
     @Test
-    public void shouldGiveAllPossibleTwins() {
-        Board board = new Board(GOAL_BLOCKS);
+    public void shouldGiveTwin() {
+        Board board = new Board(new int[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 0}});
+        assertEquals(new Board(new int[][]{{2, 1, 3}, {4, 5, 6}, {7, 8, 0}}), board.twin());
+    }
 
-        Board firsTwin = board.twin();
-        for (int i = 0; i < 35; i++) {
-            board.twin();
-        }
+    @Test
+    public void shouldGiveAlternativeTwin1() {
+        Board board = new Board(new int[][]{{0, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+        assertEquals(new Board(new int[][]{{0, 3, 2}, {4, 5, 6}, {7, 8, 9}}), board.twin());
+    }
 
-        assertEquals(firsTwin, board.twin());
+    @Test
+    public void shouldGiveAlternativeTwin2() {
+        Board board = new Board(new int[][]{{1, 0, 3}, {4, 5, 6}, {7, 8, 9}});
+        assertEquals(new Board(new int[][]{{1, 0, 3}, {5, 4, 6}, {7, 8, 9}}), board.twin());
     }
 
 }

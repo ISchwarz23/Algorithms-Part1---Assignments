@@ -13,32 +13,54 @@ import java.util.List;
  */
 public class Solver {
 
-    private static final Board SOLUTION = new Board(new int[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 0}});
     private List<Board> solutionBoards = new ArrayList<>();
+    private boolean solved;
 
 
     public Solver(Board initial) {          // find a solution to the initial board (using the A* algorithm)
         MinPQ<SolverStep> priorizedSteps = new MinPQ<>(new SolverStepComparator());
         priorizedSteps.insert(new SolverStep(initial, 0, null));
 
+        MinPQ<SolverStep> priorizedStepsTwin = new MinPQ<>(new SolverStepComparator());
+        priorizedStepsTwin.insert(new SolverStep(initial.twin(), 0, null));
+
         SolverStep step;
-        while (!(step = priorizedSteps.delMin()).getBoard().isGoal()) {
-            Iterator<Board> neighborIterator = step.getBoard().neighbors();
-            while (neighborIterator.hasNext()) {
-                priorizedSteps.insert(new SolverStep(neighborIterator.next(), step.getMoves() + 1, step));
+        while (!priorizedSteps.min().getBoard().isGoal() && !priorizedStepsTwin.min().getBoard().isGoal()) {
+            step = priorizedSteps.delMin();
+            for (Board neighbor : step.getBoard().neighbors()) {
+                if (!isAlreadyInSolutionPath(step, neighbor)) {
+                    priorizedSteps.insert(new SolverStep(neighbor, step.getMoves() + 1, step));
+                }
+            }
+
+            SolverStep stepTwin = priorizedStepsTwin.delMin();
+            for (Board neighbor : stepTwin.getBoard().neighbors()) {
+                if (!isAlreadyInSolutionPath(stepTwin, neighbor)) {
+                    priorizedStepsTwin.insert(new SolverStep(neighbor, stepTwin.getMoves() + 1, stepTwin));
+                }
             }
         }
+        step = priorizedSteps.delMin();
+        solved = step.getBoard().isGoal();
 
-        solutionBoards.add(0, SOLUTION);
-        while (step.getPreviousStep() != null) {
+        solutionBoards.add(step.getBoard());
+        while ((step = step.getPreviousStep()) != null) {
             solutionBoards.add(0, step.getBoard());
-            step = step.getPreviousStep();
         }
-        solutionBoards.add(0, step.getBoard());
+    }
+
+    private boolean isAlreadyInSolutionPath(SolverStep lastStep, Board board) {
+        SolverStep previousStep = lastStep;
+        while ((previousStep = previousStep.getPreviousStep()) != null) {
+            if (previousStep.getBoard().equals(board)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isSolvable() {           // is the initial board solvable?
-        return solutionBoards.size() > 2;
+        return solved;
     }
 
     public int moves() {                    // min number of moves to solve initial board; -1 if unsolvable
