@@ -45,8 +45,8 @@ public class PointSET {
         checkNotNull(rect, "Can't calculate range for a rect will value null");
 
         List<Point2D> solution = new ArrayList<>();
-        for(Point2D point : points) {
-            if(rect.contains(point)) {
+        for (Point2D point : points) {
+            if (rect.contains(point)) {
                 solution.add(point);
             }
         }
@@ -57,8 +57,8 @@ public class PointSET {
         checkNotNull(p, "Can't calculate nearest point to a point with value null");
 
         Point2D nearestPoint = null;
-        for(Point2D point : points) {
-            if(nearestPoint == null || point.distanceTo(p) < nearestPoint.distanceTo(p)) {
+        for (Point2D point : points) {
+            if (nearestPoint == null || point.distanceTo(p) < nearestPoint.distanceTo(p)) {
                 nearestPoint = point;
             }
         }
@@ -66,7 +66,7 @@ public class PointSET {
     }
 
     private static void checkNotNull(Object o, String messageIfObjectIsNull) {
-        if(o == null) throw new NullPointerException(messageIfObjectIsNull);
+        if (o == null) throw new NullPointerException(messageIfObjectIsNull);
     }
 
 }
