@@ -68,14 +68,14 @@ public class KdTreeTest {
     @Test
     public void shouldGiveTheCorrectNearestPoint() {
         cut.insert(new Point2D(.0, .0));
-        cut.insert(new Point2D(.1, .1));
-        cut.insert(new Point2D(.2, .2));
-        cut.insert(new Point2D(.3, .3));
-        cut.insert(new Point2D(.4, .4));
+        cut.insert(new Point2D(.0, .1));
+        cut.insert(new Point2D(.0, .2));
+        cut.insert(new Point2D(.0, .3));
+        cut.insert(new Point2D(.0, .4));
 
-        Point2D nearest = cut.nearest(new Point2D(.2, .22));
+        Point2D nearest = cut.nearest(new Point2D(.2, .2));
 
-        assertEquals(new Point2D(.2, .2), nearest);
+        assertEquals(new Point2D(.0, .2), nearest);
     }
 
     @Test(expected = NullPointerException.class)
