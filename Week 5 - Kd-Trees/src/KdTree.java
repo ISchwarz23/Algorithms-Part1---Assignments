@@ -37,7 +37,7 @@ public class KdTree {
 
     private Node put(final Node node, final Point2D pointToInsert, final int level, RectHV rect) {
         if (node == null) {
-            return new Node(level, pointToInsert, 1, rect);
+            return new Node(level, pointToInsert, rect);
         }
 
         RectHV rectLeft;
@@ -182,38 +182,38 @@ public class KdTree {
 
         private Point2D point;
         private Node left, right;  // left and right subtrees
-        private int n;             // number of nodes in subtree
         private int level;
         private RectHV rect;
 
-        public Node(int level, Point2D point, int n, RectHV rect) {
+        private int n = 1;             // number of nodes in subtree
+
+        public Node(int level, Point2D point, RectHV rect) {
             this.level = level;
             this.point = point;
-            this.n = n;
             this.rect = rect;
         }
 
-        public double compare(Point2D point) {
+        public double compare(Point2D pointToCompare) {
             if (level % 2 == 0) {
-                return point.x() - this.point.x();
+                return pointToCompare.x() - point.x();
             } else {
-                return point.y() - this.point.y();
+                return pointToCompare.y() - point.y();
             }
         }
 
-        public boolean doesSpittingLineIntersect(RectHV rect) {
+        public boolean doesSpittingLineIntersect(RectHV rectToCheck) {
             if (level % 2 == 0) {
-                return rect.xmin() <= point.x() && point.x() <= rect.xmax();
+                return rectToCheck.xmin() <= point.x() && point.x() <= rectToCheck.xmax();
             } else {
-                return rect.ymin() <= point.y() && point.y() <= rect.ymax();
+                return rectToCheck.ymin() <= point.y() && point.y() <= rectToCheck.ymax();
             }
         }
 
-        public boolean isRightOf(RectHV rect) {
+        public boolean isRightOf(RectHV rectToCheck) {
             if (level % 2 == 0) {
-                return rect.xmin() < point.x() && rect.xmax() < point.x();
+                return rectToCheck.xmin() < point.x() && rectToCheck.xmax() < point.x();
             } else {
-                return rect.ymin() < point.y() && rect.ymax() < point.y();
+                return rectToCheck.ymin() < point.y() && rectToCheck.ymax() < point.y();
             }
         }
 
