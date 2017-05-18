@@ -30,26 +30,47 @@ public class KdTree {
         else return x.n;
     }
 
-    public void insert(Point2D p) {   // add the value to the set (if it is not already in the set)
-        checkNotNull(p, "Not supported to insert null as value");
-        root = put(root, p, 0);
+    public void insert(Point2D p) {   // add the point to the set (if it is not already in the set)
+        checkNotNull(p, "Not supported to insert null as point");
+        root = put(root, p, 0, new RectHV(0, 0, 1, 1));
     }
 
-    private Node put(final Node node, final Point2D pointToInsert, final int level) {
+    private Node put(final Node node, final Point2D pointToInsert, final int level, RectHV rect) {
         if (node == null) {
-            return new Node(level, pointToInsert, 1);
+            return new Node(level, pointToInsert, 1, rect);
+        }
+
+        RectHV rectLeft;
+        if (node.left == null) {
+            if (level % 2 == 0) {
+                rectLeft = new RectHV(node.rect.xmin(), node.rect.ymin(), node.point.x(), node.rect.ymax());
+            } else {
+                rectLeft = new RectHV(node.rect.xmin(), node.rect.ymin(), node.rect.xmax(), node.point.y());
+            }
+        } else {
+            rectLeft = node.left.rect;
+        }
+        RectHV rectRight;
+        if (node.right == null) {
+            if (level % 2 == 0) {
+                rectRight = new RectHV(node.point.x(), node.rect.ymin(), node.rect.xmax(), node.rect.ymax());
+            } else {
+                rectRight = new RectHV(node.rect.xmin(), node.point.y(), node.rect.xmax(), node.rect.ymax());
+            }
+        } else {
+            rectRight = node.right.rect;
         }
 
         double cmp = node.compare(pointToInsert);
-        if (cmp < 0) node.left = put(node.left, pointToInsert, level + 1);
-        else if (cmp > 0) node.right = put(node.right, pointToInsert, level + 1);
-        else if (!pointToInsert.equals(node.value)) node.right = put(node.right, pointToInsert, level + 1);
+        if (cmp < 0) node.left = put(node.left, pointToInsert, level + 1, rectLeft);
+        else if (cmp > 0) node.right = put(node.right, pointToInsert, level + 1, rectRight);
+        else if (!pointToInsert.equals(node.point)) node.right = put(node.right, pointToInsert, level + 1, rectRight);
 
         node.n = 1 + size(node.left) + size(node.right);
         return node;
     }
 
-    public boolean contains(Point2D p) {   // does the set contain value p?
+    public boolean contains(Point2D p) {   // does the set contain point p?
         checkNotNull(p, "Null is never contained in a PointSET");
         return get(root, p, 0) != null;
     }
@@ -60,8 +81,8 @@ public class KdTree {
         double cmp = node.compare(searchedPoint);
         if (cmp < 0) return get(node.left, searchedPoint, ++level);
         else if (cmp > 0) return get(node.right, searchedPoint, ++level);
-        else if (!searchedPoint.equals(node.value)) return get(node.right, searchedPoint, ++level);
-        else return node.value;
+        else if (!searchedPoint.equals(node.point)) return get(node.right, searchedPoint, ++level);
+        else return node.point;
     }
 
     public void draw() {   // draw all points to standard draw
@@ -70,88 +91,87 @@ public class KdTree {
 
     private void draw(Node node) {
         if (node == null) return;
-        StdDraw.point(node.value.x(), node.value.y());
+        StdDraw.point(node.point.x(), node.point.y());
         draw(node.left);
         draw(node.right);
     }
 
     public Iterable<Point2D> range(RectHV rect) {   // all points that are inside the rectangle
-        checkNotNull(rect, "Can't calculate range for a rect will value null");
+        checkNotNull(rect, "Can't calculate range for a rect will point null");
         return range(rect, root);
     }
 
-    private List<Point2D> range(RectHV rect, Node node) {
+    private List<Point2D> range(RectHV queryRect, Node node) {
         if (node == null) return Collections.emptyList();
 
-        Point2D currentPoint = node.value;
-        if (rect.contains(currentPoint)) {
+        if (node.doesSpittingLineIntersect(queryRect)) {
             List<Point2D> points = new ArrayList<>();
-            points.add(currentPoint);
-            points.addAll(range(rect, node.left));
-            points.addAll(range(rect, node.right));
+            if (queryRect.contains(node.point)) {
+                points.add(node.point);
+            }
+            points.addAll(range(queryRect, node.left));
+            points.addAll(range(queryRect, node.right));
             return points;
         } else {
-            double cmp = node.compare(currentPoint);
-            if (cmp < 0) return range(rect, node.left);
-            else if (cmp > 0) return range(rect, node.right);
-            else {
-                List<Point2D> points = new ArrayList<>();
-                points.addAll(range(rect, node.left));
-                points.addAll(range(rect, node.right));
-                return points;
-            }
+            if (node.isRightOf(queryRect)) return range(queryRect, node.left);
+            else return range(queryRect, node.right);
         }
     }
 
-
-    public Point2D nearest(Point2D p) {   // a nearest neighbor in the set to value p; null if the set is empty
-        checkNotNull(p, "Can't calculate nearest value to a value with value null");
-        return nearest(p, root);
+    public Point2D nearest(Point2D p) {   // a nearest neighbor in the set to point p; null if the set is empty
+        checkNotNull(p, "Can't calculate nearest point to a point with point null");
+        if (root == null) {
+            return null;
+        }
+        return nearest(p, root, root.point, p.distanceTo(root.point));
     }
 
-    private Point2D nearest(Point2D queryPoint, Node node) {
+    private Point2D nearest(Point2D queryPoint, Node node, Point2D currentlyClosestPoint, double currentlyClosestDistance) {
         if (node == null) return null;
+        Point2D closestPoint = currentlyClosestPoint;
+        double closestDistance = currentlyClosestDistance;
 
-        Point2D currentPoint = node.value;
-        double currentDistance = currentPoint.distanceTo(queryPoint);
+        Point2D currentPoint = node.point;
+        double currentDistance = queryPoint.distanceTo(currentPoint);
+        if (currentDistance < closestDistance) {
+            closestDistance = currentDistance;
+            closestPoint = currentPoint;
+        }
 
-        Point2D nearestPoint;
-        double cmp = node.compare(currentPoint);
+        double cmp = node.compare(queryPoint);
         if (cmp < 0) {
-            nearestPoint = nearest(queryPoint, node.left);
+            currentPoint = nearest(queryPoint, node.left, closestPoint, closestDistance);
         } else {
-            nearestPoint = nearest(queryPoint, node.right);
+            currentPoint = nearest(queryPoint, node.right, closestPoint, closestDistance);
         }
 
-        double nearestDistance = 2;
-        if (nearestPoint != null) {
-            nearestDistance = nearestPoint.distanceTo(queryPoint);
+        if (currentPoint != null) {
+            if (currentPoint != closestPoint) {
+                closestDistance = currentPoint.distanceTo(queryPoint);
+                closestPoint = currentPoint;
+            }
         }
 
-        if (nearestDistance > currentDistance) {
-            nearestDistance = currentDistance;
-            nearestPoint = currentPoint;
+        double nodeRectDistance = -1;
+        if (cmp < 0 && node.right != null) {
+            nodeRectDistance = node.right.rect.distanceTo(queryPoint);
+        } else if (cmp >= 0 && node.left != null) {
+            nodeRectDistance = node.left.rect.distanceTo(queryPoint);
         }
 
-        if (nearestDistance > cmp) {
-            Point2D foundPoint;
+        if (nodeRectDistance != -1 && nodeRectDistance < closestDistance) {
             if (cmp < 0) {
-                foundPoint = nearest(queryPoint, node.right);
+                currentPoint = nearest(queryPoint, node.right, closestPoint, closestDistance);
             } else {
-                foundPoint = nearest(queryPoint, node.left);
-            }
-
-            double foundDistance = 2;
-            if (foundPoint != null) {
-                foundDistance = foundPoint.distanceTo(queryPoint);
-            }
-
-            if (nearestDistance > foundDistance) {
-                nearestPoint = foundPoint;
+                currentPoint = nearest(queryPoint, node.left, closestPoint, closestDistance);
             }
         }
 
-        return nearestPoint;
+        if (currentPoint != null) {
+            closestPoint = currentPoint;
+        }
+
+        return closestPoint;
     }
 
     private static void checkNotNull(Object o, String messageIfObjectIsNull) {
@@ -160,22 +180,40 @@ public class KdTree {
 
     private static class Node {
 
-        private Point2D value;
+        private Point2D point;
         private Node left, right;  // left and right subtrees
         private int n;             // number of nodes in subtree
         private int level;
+        private RectHV rect;
 
-        public Node(int level, Point2D value, int n) {
+        public Node(int level, Point2D point, int n, RectHV rect) {
             this.level = level;
-            this.value = value;
+            this.point = point;
             this.n = n;
+            this.rect = rect;
         }
 
         public double compare(Point2D point) {
             if (level % 2 == 0) {
-                return point.x() - value.x();
+                return point.x() - this.point.x();
             } else {
-                return point.y() - value.y();
+                return point.y() - this.point.y();
+            }
+        }
+
+        public boolean doesSpittingLineIntersect(RectHV rect) {
+            if (level % 2 == 0) {
+                return rect.xmin() <= point.x() && point.x() <= rect.xmax();
+            } else {
+                return rect.ymin() <= point.y() && point.y() <= rect.ymax();
+            }
+        }
+
+        public boolean isRightOf(RectHV rect) {
+            if (level % 2 == 0) {
+                return rect.xmin() < point.x() && rect.xmax() < point.x();
+            } else {
+                return rect.ymin() < point.y() && rect.ymax() < point.y();
             }
         }
 

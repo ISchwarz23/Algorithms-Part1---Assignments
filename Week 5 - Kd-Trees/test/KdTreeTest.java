@@ -55,14 +55,18 @@ public class KdTreeTest {
     @Test
     public void shouldGiveTheCorrectRange() {
         cut.insert(new Point2D(.0, .0));
+        cut.insert(new Point2D(.1, .1));
         cut.insert(new Point2D(.2, .2));
         cut.insert(new Point2D(.3, .3));
+        cut.insert(new Point2D(.4, .4));
         cut.insert(new Point2D(.5, .5));
 
         List<Point2D> range = (List<Point2D>) cut.range(new RectHV(.1, .1, .4, .4));
-        assertEquals(2, range.size());
+        assertEquals(4, range.size());
+        assertTrue(range.contains(new Point2D(.1, .1)));
         assertTrue(range.contains(new Point2D(.2, .2)));
         assertTrue(range.contains(new Point2D(.3, .3)));
+        assertTrue(range.contains(new Point2D(.4, .4)));
     }
 
     @Test
