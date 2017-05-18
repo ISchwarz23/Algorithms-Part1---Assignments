@@ -16,7 +16,6 @@ public class KdTree {
 
     private Node root;
 
-
     public boolean isEmpty() {   // is the set empty?
         return size() == 0;
     }
@@ -30,7 +29,8 @@ public class KdTree {
         else return nodeToCheckSize.size;
     }
 
-    public void insert(final Point2D pointToInsert) {   // add the point to the set (if it is not already in the set)
+    // add the point to the set (if it is not already in the set)
+    public void insert(final Point2D pointToInsert) {
         checkNotNull(pointToInsert, "Not supported to insert null as point");
         root = put(root, pointToInsert, 0, new RectHV(0, 0, 1, 1));
     }
@@ -40,28 +40,24 @@ public class KdTree {
             return new Node(level, pointToInsert, rect);
         }
 
-        RectHV rectLeft;
-        if (node.left == null) {
+        RectHV rectLeft = null;
+        RectHV rectRight = null;
+        double cmp = node.compare(pointToInsert);
+
+        if (cmp < 0 && node.left == null) {
             if (level % 2 == 0) {
                 rectLeft = new RectHV(node.rect.xmin(), node.rect.ymin(), node.point.x(), node.rect.ymax());
             } else {
                 rectLeft = new RectHV(node.rect.xmin(), node.rect.ymin(), node.rect.xmax(), node.point.y());
             }
-        } else {
-            rectLeft = node.left.rect;
-        }
-        RectHV rectRight;
-        if (node.right == null) {
+        } else if (cmp >= 0 && node.right == null) {
             if (level % 2 == 0) {
                 rectRight = new RectHV(node.point.x(), node.rect.ymin(), node.rect.xmax(), node.rect.ymax());
             } else {
                 rectRight = new RectHV(node.rect.xmin(), node.point.y(), node.rect.xmax(), node.rect.ymax());
             }
-        } else {
-            rectRight = node.right.rect;
         }
 
-        double cmp = node.compare(pointToInsert);
         if (cmp < 0) node.left = put(node.left, pointToInsert, level + 1, rectLeft);
         else if (cmp > 0) node.right = put(node.right, pointToInsert, level + 1, rectRight);
         else if (!pointToInsert.equals(node.point)) node.right = put(node.right, pointToInsert, level + 1, rectRight);
@@ -70,7 +66,8 @@ public class KdTree {
         return node;
     }
 
-    public boolean contains(final Point2D searchedPoint) {   // does the set contain the given point?
+    // does the set contain the given point?
+    public boolean contains(final Point2D searchedPoint) {
         checkNotNull(searchedPoint, "Null is never contained in a PointSET");
         return get(root, searchedPoint, 0) != null;
     }
@@ -85,7 +82,8 @@ public class KdTree {
         else return node.point;
     }
 
-    public void draw() {   // draw all points to standard draw
+    // draw all points to standard draw
+    public void draw() {
         draw(root);
     }
 
@@ -96,7 +94,8 @@ public class KdTree {
         draw(nodeToDraw.right);
     }
 
-    public Iterable<Point2D> range(final RectHV queryRect) {   // all points that are inside the rectangle
+    // all points that are inside the rectangle
+    public Iterable<Point2D> range(final RectHV queryRect) {
         checkNotNull(queryRect, "Can't calculate range for a rect will point null");
         return range(queryRect, root);
     }
@@ -118,7 +117,8 @@ public class KdTree {
         }
     }
 
-    public Point2D nearest(final Point2D queryPoint) {   // a nearest neighbor in the set to point queryPoint; null if the set is empty
+    // a nearest neighbor in the set to point queryPoint; null if the set is empty
+    public Point2D nearest(final Point2D queryPoint) {
         checkNotNull(queryPoint, "Can't calculate nearest point to a point with point null");
         if (root == null) {
             return null;
@@ -126,7 +126,8 @@ public class KdTree {
         return nearest(queryPoint, root, root.point, queryPoint.distanceTo(root.point));
     }
 
-    private Point2D nearest(final Point2D queryPoint, final Node node, final Point2D currentlyClosestPoint, final double currentlyClosestDistance) {
+    private Point2D nearest(final Point2D queryPoint, final Node node, final Point2D currentlyClosestPoint,
+                            final double currentlyClosestDistance) {
         if (node == null) return null;
         Point2D closestPoint = currentlyClosestPoint;
         double closestDistance = currentlyClosestDistance;
@@ -181,12 +182,12 @@ public class KdTree {
 
     private static class Node {
 
-        final private Point2D point;
-        final private int level;
-        final private RectHV rect;
+        private final Point2D point;
+        private final RectHV rect;
+        private final int level;
 
         private Node left, right;   // left and right subtrees
-        private int size;       // number of nodes in subtree
+        private int size;           // number of nodes in subtree
 
 
         public Node(final int level, final Point2D point, final RectHV rect) {
