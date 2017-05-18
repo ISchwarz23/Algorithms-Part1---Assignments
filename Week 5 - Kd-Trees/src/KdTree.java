@@ -25,17 +25,17 @@ public class KdTree {
         return size(root);
     }
 
-    private int size(Node x) {
-        if (x == null) return 0;
-        else return x.n;
+    private int size(final Node nodeToCheckSize) {
+        if (nodeToCheckSize == null) return 0;
+        else return nodeToCheckSize.size;
     }
 
-    public void insert(Point2D p) {   // add the point to the set (if it is not already in the set)
-        checkNotNull(p, "Not supported to insert null as point");
-        root = put(root, p, 0, new RectHV(0, 0, 1, 1));
+    public void insert(final Point2D pointToInsert) {   // add the point to the set (if it is not already in the set)
+        checkNotNull(pointToInsert, "Not supported to insert null as point");
+        root = put(root, pointToInsert, 0, new RectHV(0, 0, 1, 1));
     }
 
-    private Node put(final Node node, final Point2D pointToInsert, final int level, RectHV rect) {
+    private Node put(final Node node, final Point2D pointToInsert, final int level, final RectHV rect) {
         if (node == null) {
             return new Node(level, pointToInsert, rect);
         }
@@ -66,22 +66,22 @@ public class KdTree {
         else if (cmp > 0) node.right = put(node.right, pointToInsert, level + 1, rectRight);
         else if (!pointToInsert.equals(node.point)) node.right = put(node.right, pointToInsert, level + 1, rectRight);
 
-        node.n = 1 + size(node.left) + size(node.right);
+        node.size = 1 + size(node.left) + size(node.right);
         return node;
     }
 
-    public boolean contains(Point2D p) {   // does the set contain point p?
-        checkNotNull(p, "Null is never contained in a PointSET");
-        return get(root, p, 0) != null;
+    public boolean contains(final Point2D searchedPoint) {   // does the set contain the given point?
+        checkNotNull(searchedPoint, "Null is never contained in a PointSET");
+        return get(root, searchedPoint, 0) != null;
     }
 
-    private Point2D get(Node node, Point2D searchedPoint, int level) {
+    private Point2D get(final Node node, final Point2D searchedPoint, final int level) {
         if (node == null) return null;
 
         double cmp = node.compare(searchedPoint);
-        if (cmp < 0) return get(node.left, searchedPoint, ++level);
-        else if (cmp > 0) return get(node.right, searchedPoint, ++level);
-        else if (!searchedPoint.equals(node.point)) return get(node.right, searchedPoint, ++level);
+        if (cmp < 0) return get(node.left, searchedPoint, level + 1);
+        else if (cmp > 0) return get(node.right, searchedPoint, level + 1);
+        else if (!searchedPoint.equals(node.point)) return get(node.right, searchedPoint, level + 1);
         else return node.point;
     }
 
@@ -89,19 +89,19 @@ public class KdTree {
         draw(root);
     }
 
-    private void draw(Node node) {
-        if (node == null) return;
-        StdDraw.point(node.point.x(), node.point.y());
-        draw(node.left);
-        draw(node.right);
+    private void draw(final Node nodeToDraw) {
+        if (nodeToDraw == null) return;
+        StdDraw.point(nodeToDraw.point.x(), nodeToDraw.point.y());
+        draw(nodeToDraw.left);
+        draw(nodeToDraw.right);
     }
 
-    public Iterable<Point2D> range(RectHV rect) {   // all points that are inside the rectangle
-        checkNotNull(rect, "Can't calculate range for a rect will point null");
-        return range(rect, root);
+    public Iterable<Point2D> range(final RectHV queryRect) {   // all points that are inside the rectangle
+        checkNotNull(queryRect, "Can't calculate range for a rect will point null");
+        return range(queryRect, root);
     }
 
-    private List<Point2D> range(RectHV queryRect, Node node) {
+    private List<Point2D> range(final RectHV queryRect, final Node node) {
         if (node == null) return Collections.emptyList();
 
         if (node.doesSpittingLineIntersect(queryRect)) {
@@ -118,15 +118,15 @@ public class KdTree {
         }
     }
 
-    public Point2D nearest(Point2D p) {   // a nearest neighbor in the set to point p; null if the set is empty
-        checkNotNull(p, "Can't calculate nearest point to a point with point null");
+    public Point2D nearest(final Point2D queryPoint) {   // a nearest neighbor in the set to point queryPoint; null if the set is empty
+        checkNotNull(queryPoint, "Can't calculate nearest point to a point with point null");
         if (root == null) {
             return null;
         }
-        return nearest(p, root, root.point, p.distanceTo(root.point));
+        return nearest(queryPoint, root, root.point, queryPoint.distanceTo(root.point));
     }
 
-    private Point2D nearest(Point2D queryPoint, Node node, Point2D currentlyClosestPoint, double currentlyClosestDistance) {
+    private Point2D nearest(final Point2D queryPoint, final Node node, final Point2D currentlyClosestPoint, final double currentlyClosestDistance) {
         if (node == null) return null;
         Point2D closestPoint = currentlyClosestPoint;
         double closestDistance = currentlyClosestDistance;
@@ -174,26 +174,29 @@ public class KdTree {
         return closestPoint;
     }
 
-    private static void checkNotNull(Object o, String messageIfObjectIsNull) {
+    private static void checkNotNull(final Object o, final String messageIfObjectIsNull) {
         if (o == null) throw new NullPointerException(messageIfObjectIsNull);
     }
 
+
     private static class Node {
 
-        private Point2D point;
-        private Node left, right;  // left and right subtrees
-        private int level;
-        private RectHV rect;
+        final private Point2D point;
+        final private int level;
+        final private RectHV rect;
 
-        private int n = 1;             // number of nodes in subtree
+        private Node left, right;   // left and right subtrees
+        private int size;       // number of nodes in subtree
 
-        public Node(int level, Point2D point, RectHV rect) {
+
+        public Node(final int level, final Point2D point, final RectHV rect) {
             this.level = level;
             this.point = point;
             this.rect = rect;
+            this.size = 1;
         }
 
-        public double compare(Point2D pointToCompare) {
+        public double compare(final Point2D pointToCompare) {
             if (level % 2 == 0) {
                 return pointToCompare.x() - point.x();
             } else {
@@ -201,7 +204,7 @@ public class KdTree {
             }
         }
 
-        public boolean doesSpittingLineIntersect(RectHV rectToCheck) {
+        public boolean doesSpittingLineIntersect(final RectHV rectToCheck) {
             if (level % 2 == 0) {
                 return rectToCheck.xmin() <= point.x() && point.x() <= rectToCheck.xmax();
             } else {
@@ -209,7 +212,7 @@ public class KdTree {
             }
         }
 
-        public boolean isRightOf(RectHV rectToCheck) {
+        public boolean isRightOf(final RectHV rectToCheck) {
             if (level % 2 == 0) {
                 return rectToCheck.xmin() < point.x() && rectToCheck.xmax() < point.x();
             } else {
